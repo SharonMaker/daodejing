@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>道德经 · 第1章 | 罗浮山泰学版</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      background: #f9f6f0;
+      color: #2e2b26;
+      padding: 20px;
+      line-height: 1.8;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    h1 {
+      text-align: center;
+      color: #5d4037;
+      margin-bottom: 20px;
+    }
+    .controls {
+      text-align: center;
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 20px;
+      background: #5d4037;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover { background: #4a322a; }
+
+    /* ===== 中文排版：分行对仗 ===== */
+    .chinese-lines {
+      text-align: center;
+      font-size: 26px;
+      line-height: 2.8;
+      margin: 25px 0;
+      letter-spacing: 2px;
+    }
+    .line {
+      margin: 12px 0;
+    }
+
+    /* ===== 单字容器 ===== */
+    .char-container {
+      display: inline-block;
+      position: relative;
+      width: 1.3em;
+      text-align: center;
+    }
+    .char-text {
+      font-size: 26px;
+      display: block;
+    }
+    .char-pinyin {
+      position: absolute;
+      top: -1.4em;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: #777;
+      white-space: nowrap;
+    }
+    /* 标点不显示拼音 */
+    .punct .char-pinyin {
+      display: none;
+    }
+
+    /* ===== 英文翻译 ===== */
+    .word {
+      position: relative;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .word:hover {
+      background: #f0e9e1;
+    }
+    .tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #000;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      white-space: nowrap;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .word:hover .tooltip {
+      opacity: 1;
+    }
+
+    .section {
+      margin: 25px 0;
+    }
+    .section h2 {
+      color: #5d4037;
+      margin-bottom: 12px;
+    }
+    .english {
+      font-family: Georgia, serif;
+      font-size: 1.2rem;
+      line-height: 1.8;
+    }
+    #status {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #5d4037;
+      min-height: 1.2em;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>《道德经》第1章</h1>
+  
+  <div class="controls">
+    <button id="readBtn">🔊 播放英文（美音）</button>
+    <div id="status"></div>
+  </div>
+
+  <!-- 原文 -->
+  <div class="section">
+    <h2>原文（带拼音）</h2>
+    <div class="chinese-lines" id="chinese"></div>
+  </div>
+
+  <!-- 译文 -->
+  <div class="section">
+    <h2>白话译文</h2>
+    <p>可以用言语表达的“道”，就不是永恒的“道”；可以用名称界定的“名”，就不是永恒的“名”。“无名”是天地的初始状态，“有名”是万物产生的根源。因此，常从“无欲”中观照道的奥妙，常从“有欲”中观察道的端倪。这两者同出一源而名称不同，都可称为“玄”——玄妙而又玄妙，是一切奥妙的总门。</p>
+  </div>
+
+  <!-- 现代启示 -->
+  <div class="section">
+    <h2>现代启示</h2>
+    <p>在信息爆炸的时代，我们习惯用标签定义一切，却忽略了事物的本质。真正的智慧往往存在于“不可言说”之中。每天留出片刻“无欲”时间——放下评判、停止分析，只是静静观察，你将更接近内心的宁静与世界的真相。</p>
+  </div>
+
+  <!-- 英文 -->
+  <div class="section">
+    <h2>English Translation</h2>
+    <p class="english" id="english"></p>
+  </div>
+</div>
+
+<script>
+// =============== 标准原文（6行，标点准确）===============
+const lines = [
+  "道可道，非常道。",
+  "名可名，非常名。",
+  "无名天地之始；有名万物之母。",
+  "故常无欲，以观其妙；常有欲，以观其徼。",
+  "此两者，同出而异名，同谓之玄。",
+  "玄之又玄，众妙之门。"
+];
+
+// 拼音映射（按字）
+const pinyinMap = {
+  "道": "dào", "可": "kě", "非": "fēi", "常": "cháng",
+  "名": "míng", "无": "wú", "天": "tiān", "地": "dì",
+  "之": "zhī", "始": "shǐ", "有": "yǒu", "万": "wàn",
+  "物": "wù", "母": "mǔ", "故": "gù", "欲": "yù",
+  "以": "yǐ", "观": "guān", "其": "qí", "妙": "miào",
+  "徼": "jiào", "此": "cǐ", "两": "liǎng", "者": "zhě",
+  "同": "tóng", "出": "chū", "而": "ér", "异": "yì",
+  "谓": "wèi", "玄": "xuán", "又": "yòu", "众": "zhòng",
+  "门": "mén"
+};
+
+const englishText = "The Tao that can be told is not the eternal Tao. The name that can be named is not the eternal name. Nameless is the beginning of heaven and earth. Named is the mother of all things. Thus, always without desire, one observes its subtlety; always with desire, one observes its manifestations. These two emerge together but differ in name. Together they are called mysterious—mystery upon mystery—the gateway to all wonders.";
+
+const wordDict = {
+  "The": "这", "Tao": "道", "that": "那", "can": "能够", "be": "被", "told": "言说",
+  "is": "是", "not": "不是", "eternal": "永恒的", "name": "名称", "Nameless": "无名",
+  "Named": "有名", "beginning": "起始", "heaven": "天", "earth": "地", "mother": "母亲",
+  "all": "一切", "things": "万物", "Thus": "因此", "always": "总是", "without": "没有",
+  "desire": "欲望", "one": "人", "observes": "观察", "its": "它的", "subtlety": "精微",
+  "with": "带着", "manifestations": "显现", "These": "这些", "two": "两者", "emerge": "出现",
+  "together": "一同", "but": "但", "differ": "不同", "in": "在", "Together": "一起",
+  "they": "它们", "are": "是", "called": "称作", "mysterious": "玄妙", "mystery": "玄",
+  "upon": "叠加", "gateway": "门户", "to": "通往", "wonders": "奥妙"
+};
+
+// =============== 渲染中文（精准分行 + 拼音居上）===============
+function renderChinese() {
+  const container = document.getElementById('chinese');
+  let html = '';
+  for (const line of lines) {
+    let lineHtml = '';
+    for (const char of line) {
+      const isPunct = /[，。；]/.test(char);
+      const pinyin = pinyinMap[char] || "";
+      lineHtml += `
+        <div class="char-container ${isPunct ? 'punct' : ''}">
+          <span class="char-text">${char}</span>
+          <span class="char-pinyin">${pinyin}</span>
+        </div>
+      `;
+    }
+    html += `<div class="line">${lineHtml}</div>`;
+  }
+  container.innerHTML = html;
+}
+
+// =============== 渲染英文 ===============
+function renderEnglish() {
+  const words = englishText.split(/(\s+|[.,;:!?—]+)/).filter(w => w !== '');
+  let html = '';
+  for (const word of words) {
+    if (/^[.,;:!?—\s]$/.test(word)) {
+      html += word;
+    } else {
+      const clean = word.replace(/[.,;:!?]$/, '');
+      const cn = wordDict[clean] || '（释义）';
+      html += `<span class="word">${word}<span class="tooltip">${cn}</span></span>`;
+    }
+  }
+  document.getElementById('english').innerHTML = html;
+}
+
+// =============== 语音朗读（终极修复）===============
+let audioContextUnlocked = false;
+let statusEl;
+
+function unlockAudio() {
+  if (audioContextUnlocked) return;
+  // 创建临时音频上下文解锁
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (AudioContext) {
+    const ctx = new AudioContext();
+    ctx.resume().then(() => {
+      audioContextUnlocked = true;
+    });
+  }
+}
+
+function speakEnglish() {
+  statusEl.textContent = "准备朗读...";
+  unlockAudio();
+
+  // 强制延迟确保上下文激活
+  setTimeout(() => {
+    const utterance = new SpeechSynthesisUtterance(englishText);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    utterance.volume = 1.0;
+
+    // 获取语音
+    const voices = speechSynthesis.getVoices();
+    const usVoice = voices.find(v => v.lang === 'en-US');
+    if (usVoice) utterance.voice = usVoice;
+
+    speechSynthesis.speak(utterance);
+    statusEl.textContent = "🔊 正在朗读...";
+
+    utterance.onend = () => {
+      statusEl.textContent = "✓ 朗读完成";
+    };
+    utterance.onerror = () => {
+      statusEl.textContent = "❌ 朗读失败（请检查浏览器设置）";
+    };
+  }, 100);
+}
+
+// =============== 初始化 ===============
+document.addEventListener('DOMContentLoaded', () => {
+  statusEl = document.getElementById('status');
+  renderChinese();
+  renderEnglish();
+  document.getElementById('readBtn').addEventListener('click', speakEnglish);
+
+  // 首次点击解锁音频
+  document.body.addEventListener('click', unlockAudio, { once: true });
+});
+</script>
+
+</body>
+</html>
